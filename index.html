@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,700;1,200;1,800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+    <title>Annuaire Rafael</title>
+</head>
+
+<body>
+    <header>
+        <h1 class="header-title">Annuaire</h1>
+    </header>
+    <main>
+        <button type="button" class="button blue mobile" id="enregistrerClient">Enregistrer un client</button>
+        <table id="tableClient" class="records">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>E-mail</th>
+                    <th>Numéro de téléphone</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        <div class="mod" id="mod">
+            <div class="mod-content">
+                <header class="mod-header">
+                    <h2>Nouveau client</h2>
+                    <span class="mod-close" id="modClose">&#10006;</span>
+                </header>
+                <form id="form" class="mod-form">
+                    <input type="text" id="nom" data-index="new" class="mod-field" placeholder="Nom"
+                        required>
+                    <input type="text" id="prenom" class="mod-field" placeholder="Prénom" required>
+                    <input type="email" id="email" class="mod-field" placeholder="E-mail" required>
+                    <input type="text" id="telephone" class="mod-field" placeholder="Téléphone" required>
+                    
+                </form>
+                <footer class="mod-footer">
+                    <button id="editer" class="button green">Éditer</button>
+                    <button id="annuler" class="button blue">Annuler</button>
+                </footer>
+            </div>
+        </div>
+    </main>
+    <footer>
+        
+    </footer>
+</body>
+
+</html>
