@@ -1,146 +1,168 @@
+$(document).ready(function () {
+    updateTable()
+
+    $("#enregistrerClient").click(function () {
+
+        $(".mod").addClass("active");
+    });
 
 
-const openMod = () => document.getElementById('mod')
-    .classList.add('active')
+    $("#modClose, #annuler").click(function () {
+        closeMod();
+    });
 
-const closeMod = () => {
-    clearFields()
-    document.getElementById('mod').classList.remove('active')
-}
+    $('#annuler')
+        .click(function () { closeMod() });
 
-
-const getLocalStorage = () => JSON.parse(localStorage.getItem('db_client')) ?? []
-const setLocalStorage = (dbClient) => localStorage.setItem("db_client", JSON.stringify(dbClient))
-
-
-const deleteClient = (index) => {
-    const dbClient = readClient()
-    dbClient.splice(index, 1)
-    setLocalStorage(dbClient)
-}
-
-const updateClient = (index, client) => {
-    const dbClient = readClient()
-    dbClient[index] = client
-    setLocalStorage(dbClient)
-}
-
-const readClient = () => getLocalStorage()
-
-const createClient = (client) => {
-    const dbClient = getLocalStorage()
-    dbClient.push (client)
-    setLocalStorage(dbClient)
-}
-
-const isValidFields = () => {
-    return document.getElementById('form').reportValidity()
-}
-
-
-
-const clearFields = () => {
-    const fields = document.querySelectorAll('.mod-field')
-    fields.forEach(field => field.value = "")
-    document.getElementById('nom').dataset.index = 'new'
-}
-
-const saveClient = () => {
-    debugger
-    if (isValidFields()) {
-        const client = {
-            nom: document.getElementById('nom').value,
-            prenom: document.getElementById('prenom').value,
-            email: document.getElementById('email').value,
-            telephone: document.getElementById('telephone').value
-            
-        }
-        const index = document.getElementById('nom').dataset.index
-        if (index == 'new') {
-            createClient(client)
-            updateTable()
-            closeMod()
-        } else {
-            updateClient(index, client)
-            updateTable()
-            closeMod()
-        }
-    }
-}
-
-const createRow = (client, index) => {
-    const newRow = document.createElement('tr')
-    newRow.innerHTML = `
-        <td>${client.nom}</td>
-        <td>${client.prenom}</td>
-        <td>${client.email}</td>
-        <td>${client.telephone}</td>        
-        <td>
-            <button type="button" class="button green" id="edit-${index}">Éditer</button>
-            <button type="button" class="button red" id="delete-${index}" >Effacer</button>
-        </td>
-    `
-    document.querySelector('#tableClient>tbody').appendChild(newRow)
-}
-
-const clearTable = () => {
-    const rows = document.querySelectorAll('#tableClient>tbody tr')
-    rows.forEach(row => row.parentNode.removeChild(row))
-}
-
-const updateTable = () => {
-    const dbClient = readClient()
-    clearTable()
-    dbClient.forEach(createRow)
-}
-
-const fillFields = (client) => {
-    document.getElementById('nom').value = client.nom
-    document.getElementById('prenom').value = client.prenom
-    document.getElementById('email').value = client.email
-    document.getElementById('telephone').value = client.telephone    
-    document.getElementById('nom').dataset.index = client.index
-}
-
-const editClient = (index) => {
-    const client = readClient()[index]
-    client.index = index
-    fillFields(client)
-    openMod()
-}
-
-const editDelete = (event) => {
-    if (event.target.type == 'button') {
-
-        const [action, index] = event.target.id.split('-')
-
-        if (action == 'edit') {
-            editClient(index)
-        } else {
-            const client = readClient()[index]
-            const response = confirm(`Souhaitez-vous vraiment supprimer ce client ?`)
-            if (response) {
-                deleteClient(index)
-                updateTable()
+    $("#editer").click(function () {
+        if (isValidFields()) {
+            let mod = $(".mod");
+            let client = {
+                nom: mod.find('#nom').val(),
+                prenom: mod.find('#prenom').val(),
+                email: mod.find('#email').val(),
+                telephone: mod.find('#telephone').val()
+            }
+            let index = mod.find("#nom").attr("data-index")
+            if (index === 'new') {
+                createClient(client);
+                updateTable();
+                closeMod();
+            } else {
+                updateClient(index, client);
+                updateTable();
+                closeMod();
             }
         }
-    }
+    });
+
+});
+
+function closeMod() {
+    clearFields();
+    $(".mod").removeClass("active");
 }
 
-updateTable()
+function clearFields() {
+    $(".mod-field").val("");
+    $('#nom').attr('data-index', 'new');
+}
+
+function isValidFields() {
+    return $('#form').get(0).reportValidity();
+}
 
 
-document.getElementById('enregistrerClient')
-    .addEventListener('click', openMod)
 
-document.getElementById('modClose')
-    .addEventListener('click', closeMod)
+function getLocalStorage() {
+    return JSON.parse(localStorage.getItem('db_client')) ?? [];
+}
 
-document.getElementById('editer')
-    .addEventListener('click', saveClient)
+function setLocalStorage(dbClient) {
+    localStorage.setItem("db_client", JSON.stringify(dbClient));
+} 
 
-document.querySelector('#tableClient>tbody')
-    .addEventListener('click', editDelete)
 
-document.getElementById('annuler')
-    .addEventListener('click', closeMod)
+
+function deleteClient(index) {
+    let dbClient = getLocalStorage();
+    dbClient.splice(index, 1);
+    setLocalStorage(dbClient);
+}
+
+function updateClient(index, client) {
+    let dbClient = getLocalStorage();
+    dbClient[index] = client;
+    setLocalStorage(dbClient);
+}
+
+function createClient(client) {
+     $.ajax({
+            mode: 'no-cors',
+            type: "POST",
+            crossDomain: true, 
+            url: "http://127.0.0.1:8080/user",
+            dataType: 'jsonp',
+            data: client,
+            error: function() {
+                alert("impossible de créer les données utilisateur")
+            },
+
+            success: function (data) {
+            console.log(data);
+        }
+        })
+}
+
+function clearTable() {
+    let rows = $("#tableClient>tbody tr");
+    $(rows).remove()
+}
+
+function updateTable() {
+     $.ajax({
+            mode: 'no-cors',
+            type: "GET",
+            crossDomain: true, 
+            url: "http://127.0.0.1:8080/users",
+            dataType: 'jsonp',
+            error: function() {
+                alert("impossible de récupérer les données")
+            },
+
+            success: function (data) {
+            console.log(data);
+        }
+
+        })
+
+    let dbClient = getLocalStorage();
+    clearTable();
+    dbClient.forEach(createRow);
+    $(".inlineButton").click(function (e) { editDelete(e) })
+}
+
+function fillFields(client) {
+    let mod = $(".mod");
+    mod.find('#nom').val(client.nom),
+        mod.find('#prenom').val(client.prenom),
+        mod.find('#email').val(client.email),
+        mod.find('#telephone').val(client.telephone)
+    mod.find('#nom').attr('data-index', client.index);
+}
+
+function editClient(index) {
+    let client = getLocalStorage()[index]
+    client.index = index
+    fillFields(client)
+    $(".mod").addClass("active");
+}
+
+function createRow(client, index) {
+    $("#tableClient").last()
+        .append(
+            $('<tr>')
+                .append($('<td>').text(client.nom))
+                .append($('<td>').text(client.prenom))
+                .append($('<td>').text(client.email))
+                .append($('<td>').text(client.telephone))
+                .append(
+                    $('<td>')
+                        .append("<button type=\"button\" class=\"button green inlineButton\" id=\"edit-" + index + "\">Éditer</button>")
+                        .append("<button type=\"button\" class=\"button red inlineButton\" id=\"delete-" + index + "\">Effacer</button>")
+                )
+        )
+}
+
+function editDelete(e) {
+    let [action, index] = $(e.target).attr('id').split('-')
+    if (action === 'edit') {
+        editClient(index)
+    } else {
+        let response = confirm(`Souhaitez-vous vraiment supprimer ce client ?`)
+        if (response) {
+            deleteClient(index)
+            updateTable()
+        }
+    }
+}
